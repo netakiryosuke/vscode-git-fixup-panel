@@ -1,6 +1,6 @@
 # Git Fixup Panel
 
-**Create fixup commits and run autosquash rebase — without leaving VS Code.**
+**A VS Code extension for creating fixup commits and running autosquash rebase through a GUI — right from the Source Control panel.**
 
 ## What is this?
 
@@ -9,7 +9,7 @@ Git Fixup Panel adds two focused commands to your Source Control panel:
 1. **Create Fixup Commit** — stage your changes, pick the commit to amend, and the extension runs `git commit --fixup` for you. Optionally kick off an autosquash rebase on the spot.
 2. **Rebase Autosquash** — run `git rebase -i --autosquash` non-interactively against any commit in your recent history, with no editor window interrupting your flow.
 
-Both commands are accessible from the SCM title bar buttons and the Command Palette.
+Both commands are accessible from the Source Control panel title bar buttons and the Command Palette.
 
 ## Features
 
@@ -25,7 +25,7 @@ Select a base commit and the extension runs `git rebase -i --autosquash <sha>^` 
 
 ![Autosquash](https://github.com/user-attachments/assets/2f17d6e0-7d9f-4488-84a1-a7b23bc392c2)
 
-### SCM Panel Buttons
+### Source Control Panel Buttons
 
 Both commands appear as icon buttons in the Source Control panel title bar so you can reach them without opening the Command Palette.
 
@@ -36,14 +36,14 @@ Both commands appear as icon buttons in the Source Control panel title bar so yo
 ### Create Fixup Commit
 
 1. Make your edits and stage them with `git add` (or VS Code's Stage Changes button).
-2. Click the **commit icon** ($(git-commit)) in the SCM panel title bar, or open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run **Git Fixup: Create Fixup Commit**.
+2. Click the **commit icon** ($(git-commit)) in the Source Control panel title bar, or open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run **Git Fixup: Create Fixup Commit**.
 3. Select the commit you want to amend from the list.
 4. A `fixup!` commit is created. You will be asked whether to run autosquash rebase immediately — choose **Rebase now** or **Later**.
 
 ### Rebase Autosquash
 
 1. Make sure your working tree is clean (no uncommitted changes, no merge in progress).
-2. Click the **fold icon** ($(fold)) in the SCM panel title bar, or run **Git Fixup: Rebase Autosquash** from the Command Palette.
+2. Click the **fold icon** ($(fold)) in the Source Control panel title bar, or run **Git Fixup: Rebase Autosquash** from the Command Palette.
 3. Select the base commit — the rebase will apply from that commit up to `HEAD`.
 4. The rebase runs silently and completes without opening an interactive editor.
 
