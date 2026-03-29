@@ -77,11 +77,11 @@ export async function runAutosquash(sha: string, repoPath: string): Promise<void
 	});
 }
 
-export async function getRootCommitSha(repoPath: string): Promise<string> {
+export async function getRootCommitSha(repoPath: string): Promise<string[]> {
 	const { stdout } = await execFileAsync(
 		getGitExecutable(),
 		['rev-list', '--max-parents=0', 'HEAD'],
 		{ cwd: repoPath, env: GIT_ENV }
 	);
-	return stdout.trim();
+	return stdout.split('\n').map(line => line.trim()).filter(Boolean);
 }

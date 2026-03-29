@@ -57,13 +57,13 @@ export async function fixupCommand(): Promise<void> {
 	}
 
 	// 選択コミットがルートコミットの場合はautosquash提案をスキップする（rebaseできないため）
-	let rootSha: string;
+	let rootShas: string[];
 	try {
-		rootSha = await getRootCommitSha(repoPath);
+		rootShas = await getRootCommitSha(repoPath);
 	} catch {
 		return;
 	}
-	if (selected.sha === rootSha) {
+	if (rootShas.length === 0 || rootShas.includes(selected.sha)) {
 		return;
 	}
 

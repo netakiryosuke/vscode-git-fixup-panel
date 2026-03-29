@@ -42,14 +42,14 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 	}
 
 	// ルートコミットはrebase対象にできないため除外する
-	let rootSha: string;
+	let rootShas: string[];
 	try {
-		rootSha = await getRootCommitSha(repoPath);
+		rootShas = await getRootCommitSha(repoPath);
 	} catch (err) {
 		vscode.window.showErrorMessage(`ルートコミットの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
 		return;
 	}
-	const commitsForRebase = commits.filter(c => c.sha !== rootSha);
+	const commitsForRebase = commits.filter(c => !rootShas.includes(c.sha));
 	if (commitsForRebase.length === 0) {
 		vscode.window.showErrorMessage('rebase可能なコミットがありません。コミットが1件以下です。');
 		return;
