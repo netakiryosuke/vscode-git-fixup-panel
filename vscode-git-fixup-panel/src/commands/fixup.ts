@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import {
 	getRepository,
 	getCommitLog,
-	runGitCommand,
+	runGitFixup,
 	runAutosquash,
 } from '../git/repository';
 
@@ -46,7 +46,7 @@ export async function fixupCommand(): Promise<void> {
 	}
 
 	try {
-		runGitCommand(`git commit --fixup=${selected.sha}`, repoPath);
+		runGitFixup(selected.sha, repoPath);
 		vscode.window.showInformationMessage(
 			`fixupコミットを作成しました: ${selected.description} ${selected.label}`
 		);
