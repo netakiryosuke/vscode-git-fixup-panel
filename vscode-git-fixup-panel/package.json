@@ -1,23 +1,32 @@
 {
   "name": "vscode-git-fixup-panel",
   "displayName": "Git Fixup Panel",
-  "description": "",
+  "description": "Create fixup commits and run autosquash rebase from VS Code",
   "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.110.0"
-  },
-  "categories": [
-    "Other"
-  ],
+  "engines": { "vscode": "^1.110.0" },
+  "categories": ["Other"],
+  "extensionDependencies": ["vscode.git"],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-git-fixup-panel.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-git-fixup-panel.fixup",
+        "title": "Git: Create Fixup Commit",
+        "category": "Git Fixup"
+      },
+      {
+        "command": "vscode-git-fixup-panel.rebaseAutosquash",
+        "title": "Git: Rebase Autosquash",
+        "category": "Git Fixup"
       }
-    ]
+    ],
+    "menus": {
+      "commandPalette": [
+        { "command": "vscode-git-fixup-panel.fixup" },
+        { "command": "vscode-git-fixup-panel.rebaseAutosquash" }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

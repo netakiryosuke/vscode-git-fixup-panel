@@ -1,15 +1,19 @@
 import * as assert from 'assert';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
 import * as vscode from 'vscode';
-// import * as myExtension from '../../extension';
 
-suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
+suite('Git Fixup Panel - Extension Test Suite', () => {
+  test('extension should be present', async () => {
+    const ext = vscode.extensions.getExtension('undefined_publisher.vscode-git-fixup-panel');
+    assert.ok(ext, 'Extension should be present');
+  });
 
-	test('Sample test', () => {
-		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
-	});
+  test('fixup command should be registered', async () => {
+    const commands = await vscode.commands.getCommands(true);
+    assert.ok(commands.includes('vscode-git-fixup-panel.fixup'), 'fixup command should be registered');
+  });
+
+  test('rebaseAutosquash command should be registered', async () => {
+    const commands = await vscode.commands.getCommands(true);
+    assert.ok(commands.includes('vscode-git-fixup-panel.rebaseAutosquash'), 'rebaseAutosquash command should be registered');
+  });
 });
