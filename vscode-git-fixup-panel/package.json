@@ -32,12 +32,12 @@
       "scm/title": [
         {
           "command": "vscode-git-fixup-panel.fixup",
-          "group": "navigation",
+          "group": "navigation@1",
           "when": "scmProvider == git"
         },
         {
           "command": "vscode-git-fixup-panel.rebaseAutosquash",
-          "group": "navigation",
+          "group": "navigation@2",
           "when": "scmProvider == git"
         }
       ],
