@@ -1,7 +1,7 @@
 {
   "name": "vscode-git-fixup-panel",
   "displayName": "Git Fixup Panel",
-  "description": "",
+  "description": "Create fixup commits and run autosquash rebase from VS Code",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.110.0"
@@ -9,15 +9,48 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:vscode-git-fixup-panel.fixup",
+    "onCommand:vscode-git-fixup-panel.rebaseAutosquash"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-git-fixup-panel.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-git-fixup-panel.fixup",
+        "title": "Create Fixup Commit",
+        "category": "Git Fixup",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "vscode-git-fixup-panel.rebaseAutosquash",
+        "title": "Rebase Autosquash",
+        "category": "Git Fixup",
+        "icon": "$(fold)"
       }
-    ]
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "vscode-git-fixup-panel.fixup",
+          "group": "navigation@1",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "vscode-git-fixup-panel.rebaseAutosquash",
+          "group": "navigation@2",
+          "when": "scmProvider == git"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "vscode-git-fixup-panel.fixup"
+        },
+        {
+          "command": "vscode-git-fixup-panel.rebaseAutosquash"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -32,6 +65,7 @@
     "@types/vscode": "^1.110.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.7.1",
     "eslint": "^9.39.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1"
