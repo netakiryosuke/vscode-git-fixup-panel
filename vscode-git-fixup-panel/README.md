@@ -68,6 +68,14 @@ This extension does not add its own settings. It reads the following built-in VS
 
 ## Release Notes
 
+### 0.0.3
+
+- Fix release pipeline: `package.json` version is now automatically synced from the git tag before publishing.
+
+### 0.0.2
+
+- Add LICENSE file to the extension package for correct Marketplace display.
+
 ### 0.0.1
 
 - Initial release.

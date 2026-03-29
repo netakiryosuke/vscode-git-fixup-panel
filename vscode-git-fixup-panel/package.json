@@ -2,7 +2,7 @@
   "name": "vscode-git-fixup-panel",
   "displayName": "Git Fixup Panel",
   "description": "Create fixup commits and run autosquash rebase from VS Code",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "publisher": "netakiryosuke",
   "repository": {
     "type": "git",
