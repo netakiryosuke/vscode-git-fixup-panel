@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { execFileSync, execFile } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { GitExtension, Repository } from '../types/git';
 
@@ -22,17 +22,31 @@ export function getRepository(): Repository | undefined {
 		return undefined;
 	}
 	const git = gitExtension.getAPI(1);
-	return git?.repositories[0];
+	if (!git) {
+		return undefined;
+	}
+	// マルチルートワークスペース対応: アクティブエディタのURIに一致するリポジトリを優先する
+	const activeUri = vscode.window.activeTextEditor?.document.uri;
+	if (activeUri) {
+		const matched = git.repositories.find(repo =>
+			activeUri.fsPath.startsWith(repo.rootUri.fsPath)
+		);
+		if (matched) {
+			return matched;
+		}
+	}
+	// 一致しない場合は最初のリポジトリにフォールバック
+	return git.repositories[0];
 }
 
-export function getCommitLog(repoPath: string): CommitEntry[] {
-	const output = execFileSync(
+export async function getCommitLog(repoPath: string): Promise<CommitEntry[]> {
+	const { stdout } = await execFileAsync(
 		'git',
 		['log', '--pretty=format:%H %s', `-${COMMIT_LOG_COUNT}`],
 		{ cwd: repoPath, env: GIT_ENV }
-	).toString();
+	);
 
-	return output.trim().split('\n').filter(Boolean).flatMap(line => {
+	return stdout.trim().split('\n').filter(Boolean).flatMap(line => {
 		const sha = line.slice(0, 40);
 		const message = line.slice(41);
 		if (!SHA_PATTERN.test(sha)) {
@@ -42,19 +56,14 @@ export function getCommitLog(repoPath: string): CommitEntry[] {
 	});
 }
 
-export function runGitFixup(sha: string, cwd: string): void {
-	execFileSync('git', ['commit', `--fixup=${sha}`], { cwd, env: GIT_ENV });
+export async function runGitFixup(sha: string, cwd: string): Promise<void> {
+	await execFileAsync('git', ['commit', `--fixup=${sha}`], { cwd, env: GIT_ENV });
 }
 
 export async function runAutosquash(sha: string, repoPath: string): Promise<void> {
-	try {
-		// GIT_SEQUENCE_EDITOR=: でエディタを起動せず非インタラクティブに実行する
-		await execFileAsync('git', ['rebase', '-i', '--autosquash', `${sha}^`], {
-			cwd: repoPath,
-			env: { ...GIT_ENV, GIT_SEQUENCE_EDITOR: ':' },
-		});
-		vscode.window.showInformationMessage('autosquash rebase が完了しました。');
-	} catch (err) {
-		vscode.window.showErrorMessage(`git rebase --autosquash の実行に失敗しました: ${err}`);
-	}
+	// GIT_SEQUENCE_EDITOR=: でエディタを起動せず非インタラクティブに実行する
+	await execFileAsync('git', ['rebase', '-i', '--autosquash', `${sha}^`], {
+		cwd: repoPath,
+		env: { ...GIT_ENV, GIT_SEQUENCE_EDITOR: ':' },
+	});
 }

@@ -25,9 +25,9 @@ export async function fixupCommand(): Promise<void> {
 	const repoPath = repo.rootUri.fsPath;
 	let commits;
 	try {
-		commits = getCommitLog(repoPath);
+		commits = await getCommitLog(repoPath);
 	} catch (err) {
-		vscode.window.showErrorMessage(`コミットログの取得に失敗しました: ${err}`);
+		vscode.window.showErrorMessage(`コミットログの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
 		return;
 	}
 
@@ -46,12 +46,17 @@ export async function fixupCommand(): Promise<void> {
 	}
 
 	try {
-		runGitFixup(selected.sha, repoPath);
+		await runGitFixup(selected.sha, repoPath);
 		vscode.window.showInformationMessage(
 			`fixupコミットを作成しました: ${selected.description} ${selected.label}`
 		);
 	} catch (err) {
-		vscode.window.showErrorMessage(`git commit --fixup の実行に失敗しました: ${err}`);
+		vscode.window.showErrorMessage(`git commit --fixup の実行に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+		return;
+	}
+
+	// 最古のコミットが選択された場合はautosquash提案をスキップする（rebaseできないため）
+	if (selected.sha === commits[commits.length - 1].sha) {
 		return;
 	}
 
@@ -62,6 +67,11 @@ export async function fixupCommand(): Promise<void> {
 	);
 
 	if (answer === REBASE_BUTTON) {
-		await runAutosquash(selected.sha, repoPath);
+		try {
+			await runAutosquash(selected.sha, repoPath);
+			vscode.window.showInformationMessage('autosquash rebase が完了しました。');
+		} catch (err) {
+			vscode.window.showErrorMessage(`git rebase --autosquash の実行に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+		}
 	}
 }

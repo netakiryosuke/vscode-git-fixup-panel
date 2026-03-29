@@ -14,12 +14,20 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 		return;
 	}
 
+	// 作業ツリーやインデックスに未コミットの変更がある場合はrebaseを行わない
+	if (repo.state.workingTreeChanges.length > 0 || repo.state.indexChanges.length > 0) {
+		vscode.window.showWarningMessage(
+			'作業ツリーまたはインデックスに変更があります。コミットまたはスタッシュしてからrebaseしてください。'
+		);
+		return;
+	}
+
 	const repoPath = repo.rootUri.fsPath;
 	let commits;
 	try {
-		commits = getCommitLog(repoPath);
+		commits = await getCommitLog(repoPath);
 	} catch (err) {
-		vscode.window.showErrorMessage(`コミットログの取得に失敗しました: ${err}`);
+		vscode.window.showErrorMessage(`コミットログの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
 		return;
 	}
 
@@ -28,7 +36,14 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 		return;
 	}
 
-	const selected = await vscode.window.showQuickPick(commits, {
+	// 初回コミット（最古のコミット）はrebase対象にできないため除外する
+	const commitsForRebase = commits.slice(0, -1);
+	if (commitsForRebase.length === 0) {
+		vscode.window.showErrorMessage('rebase可能なコミットがありません。コミットが1件以下です。');
+		return;
+	}
+
+	const selected = await vscode.window.showQuickPick(commitsForRebase, {
 		placeHolder: 'autosquash rebase の対象コミットを選択してください',
 		matchOnDescription: true,
 	});
@@ -44,6 +59,11 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 	);
 
 	if (answer === REBASE_BUTTON) {
-		await runAutosquash(selected.sha, repoPath);
+		try {
+			await runAutosquash(selected.sha, repoPath);
+			vscode.window.showInformationMessage('autosquash rebase が完了しました。');
+		} catch (err) {
+			vscode.window.showErrorMessage(`git rebase --autosquash の実行に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+		}
 	}
 }
