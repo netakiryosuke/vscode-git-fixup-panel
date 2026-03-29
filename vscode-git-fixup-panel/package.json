@@ -3,6 +3,11 @@
   "displayName": "Git Fixup Panel",
   "description": "Create fixup commits and run autosquash rebase from VS Code",
   "version": "0.0.1",
+  "publisher": "netakiryosuke",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/netakiryosuke/vscode-git-fixup-panel"
+  },
   "engines": {
     "vscode": "^1.110.0"
   },
