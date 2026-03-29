@@ -2,11 +2,6 @@
 
 **Create fixup commits and run autosquash rebase — without leaving VS Code.**
 
-<!-- TODO: Add a banner/hero image here -->
-<!-- ![Git Fixup Panel](images/banner.png) -->
-
----
-
 ## What is this?
 
 Git Fixup Panel adds two focused commands to your Source Control panel:
@@ -16,32 +11,25 @@ Git Fixup Panel adds two focused commands to your Source Control panel:
 
 Both commands are accessible from the SCM title bar buttons and the Command Palette.
 
----
-
 ## Features
 
 ### Create Fixup Commit
 
 Stage your changes, then pick which commit to fix up from a quick-pick list of your recent 20 commits. A `fixup!` commit is created instantly. After creation you can choose to run the autosquash rebase immediately or defer it.
 
-<!-- TODO: Replace with an actual screen recording -->
-<!-- ![Create Fixup Commit demo](images/fixup-demo.gif) -->
+![fixup](https://github.com/user-attachments/assets/d154a020-a9da-4701-a25e-eec785fc7246)
 
 ### Rebase Autosquash
 
 Select a base commit and the extension runs `git rebase -i --autosquash <sha>^` without opening an editor. All pending `fixup!` and `squash!` commits are folded in automatically.
 
-<!-- TODO: Replace with an actual screen recording -->
-<!-- ![Rebase Autosquash demo](images/rebase-demo.gif) -->
+![Autosquash](https://github.com/user-attachments/assets/2f17d6e0-7d9f-4488-84a1-a7b23bc392c2)
 
 ### SCM Panel Buttons
 
 Both commands appear as icon buttons in the Source Control panel title bar so you can reach them without opening the Command Palette.
 
-<!-- TODO: Add a screenshot showing the two buttons in the SCM panel -->
-<!-- ![SCM buttons](images/scm-buttons.png) -->
-
----
+<img width="640" height="476" alt="Book xlsx - Google Chrome 2026_03_30 3_20_38" src="https://github.com/user-attachments/assets/21020ca1-be92-474c-bc9f-ff0e9678d956" />
 
 ## Getting Started
 
@@ -59,14 +47,10 @@ Both commands appear as icon buttons in the Source Control panel title bar so yo
 3. Select the base commit — the rebase will apply from that commit up to `HEAD`.
 4. The rebase runs silently and completes without opening an interactive editor.
 
----
-
 ## Requirements
 
 - **Git** must be installed. The extension respects the `git.path` setting in VS Code, so custom Git locations are supported.
 - **VS Code** `1.110.0` or newer.
-
----
 
 ## Extension Settings
 
@@ -76,15 +60,11 @@ This extension does not add its own settings. It reads the following built-in VS
 |---------|-------------|
 | `git.path` | Path to the Git executable. Falls back to `git` on `PATH` if not set. |
 
----
-
 ## Known Limitations
 
 - The commit picker shows up to **20 recent commits**. Older commits are not listed.
 - The rebase is fully non-interactive — conflicts will abort the rebase and must be resolved manually via the terminal.
 - The extension requires at least one commit in the repository.
-
----
 
 ## Release Notes
 
@@ -96,12 +76,8 @@ This extension does not add its own settings. It reads the following built-in VS
 - Multi-root workspace support.
 - Respects `git.path` VS Code setting.
 
----
-
 ## Feedback & Contributing
 
 Issues and pull requests are welcome on [GitHub](https://github.com/netakiryosuke/vscode-git-fixup-panel).
-
----
 
 > 日本語ドキュメントは [README.ja.md](README.ja.md) をご覧ください。
