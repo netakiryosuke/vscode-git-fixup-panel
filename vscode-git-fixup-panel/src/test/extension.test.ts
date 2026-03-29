@@ -2,8 +2,13 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 
 suite('Git Fixup Panel - Extension Test Suite', () => {
+  // publisher変更時のテスト破損を避けるため packageJSON.name で探索する
+  function findExtension() {
+    return vscode.extensions.all.find(e => e.packageJSON?.name === 'vscode-git-fixup-panel');
+  }
+
   async function activateExtension(): Promise<void> {
-    const ext = vscode.extensions.getExtension('undefined_publisher.vscode-git-fixup-panel');
+    const ext = findExtension();
     assert.ok(ext, 'Extension should be present');
     // activate未実行の場合コマンドが登録されていないため明示的に起動する
     if (!ext.isActive) {
@@ -12,7 +17,7 @@ suite('Git Fixup Panel - Extension Test Suite', () => {
   }
 
   test('extension should be present', async () => {
-    const ext = vscode.extensions.getExtension('undefined_publisher.vscode-git-fixup-panel');
+    const ext = findExtension();
     assert.ok(ext, 'Extension should be present');
   });
 
