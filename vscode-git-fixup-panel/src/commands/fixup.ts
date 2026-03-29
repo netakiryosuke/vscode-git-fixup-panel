@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import {
 	getRepository,
 	getCommitLog,
+	getRootCommitSha,
 	runGitFixup,
 	runAutosquash,
 } from '../git/repository';
@@ -55,18 +56,30 @@ export async function fixupCommand(): Promise<void> {
 		return;
 	}
 
-	// 最古のコミットが選択された場合はautosquash提案をスキップする（rebaseできないため）
-	if (selected.sha === commits[commits.length - 1].sha) {
+	// 選択コミットがルートコミットの場合はautosquash提案をスキップする（rebaseできないため）
+	let rootSha: string;
+	try {
+		rootSha = await getRootCommitSha(repoPath);
+	} catch {
+		return;
+	}
+	if (selected.sha === rootSha) {
 		return;
 	}
 
 	const answer = await vscode.window.showWarningMessage(
-		`autosquash rebase を今すぐ実行しますか？ (対象: ${selected.description}^ まで)`,
+		`autosquash rebase を今すぐ実行しますか？ (対象: ${selected.description}^..HEAD)`,
 		REBASE_BUTTON,
 		'Later'
 	);
 
 	if (answer === REBASE_BUTTON) {
+		if (repo.state.workingTreeChanges.length > 0) {
+			vscode.window.showWarningMessage(
+				'作業ツリーに変更があります。コミットまたはスタッシュしてからrebaseしてください。'
+			);
+			return;
+		}
 		try {
 			await runAutosquash(selected.sha, repoPath);
 			vscode.window.showInformationMessage('autosquash rebase が完了しました。');

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { GitExtension, Repository } from '../types/git';
@@ -28,9 +29,10 @@ export function getRepository(): Repository | undefined {
 	// マルチルートワークスペース対応: アクティブエディタのURIに一致するリポジトリを優先する
 	const activeUri = vscode.window.activeTextEditor?.document.uri;
 	if (activeUri) {
-		const matched = git.repositories.find(repo =>
-			activeUri.fsPath.startsWith(repo.rootUri.fsPath)
-		);
+		const matched = git.repositories.find(repo => {
+			const rootPath = repo.rootUri.fsPath;
+			return activeUri.fsPath === rootPath || activeUri.fsPath.startsWith(rootPath + path.sep);
+		});
 		if (matched) {
 			return matched;
 		}
@@ -66,4 +68,13 @@ export async function runAutosquash(sha: string, repoPath: string): Promise<void
 		cwd: repoPath,
 		env: { ...GIT_ENV, GIT_SEQUENCE_EDITOR: ':' },
 	});
+}
+
+export async function getRootCommitSha(repoPath: string): Promise<string> {
+	const { stdout } = await execFileAsync(
+		'git',
+		['rev-list', '--max-parents=0', 'HEAD'],
+		{ cwd: repoPath, env: GIT_ENV }
+	);
+	return stdout.trim();
 }

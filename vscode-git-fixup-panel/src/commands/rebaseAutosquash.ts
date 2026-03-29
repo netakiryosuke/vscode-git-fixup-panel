@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import {
 	getRepository,
 	getCommitLog,
+	getRootCommitSha,
 	runAutosquash,
 } from '../git/repository';
 
@@ -36,8 +37,15 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 		return;
 	}
 
-	// 初回コミット（最古のコミット）はrebase対象にできないため除外する
-	const commitsForRebase = commits.slice(0, -1);
+	// ルートコミットはrebase対象にできないため除外する
+	let rootSha: string;
+	try {
+		rootSha = await getRootCommitSha(repoPath);
+	} catch (err) {
+		vscode.window.showErrorMessage(`ルートコミットの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+		return;
+	}
+	const commitsForRebase = commits.filter(c => c.sha !== rootSha);
 	if (commitsForRebase.length === 0) {
 		vscode.window.showErrorMessage('rebase可能なコミットがありません。コミットが1件以下です。');
 		return;
@@ -52,8 +60,9 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 		return;
 	}
 
+	const shortSha = selected.sha.slice(0, 7);
 	const answer = await vscode.window.showWarningMessage(
-		`${selected.description} の前までautosquash rebaseを実行しますか？`,
+		`${shortSha} から HEAD まで autosquash rebase を実行しますか？`,
 		REBASE_BUTTON,
 		'Cancel'
 	);
