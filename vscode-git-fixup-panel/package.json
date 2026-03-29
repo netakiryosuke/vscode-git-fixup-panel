@@ -10,7 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onCommand:vscode-git-fixup-panel.fixup",
+    "onCommand:vscode-git-fixup-panel.rebaseAutosquash"
   ],
   "main": "./out/extension.js",
   "contributes": {
