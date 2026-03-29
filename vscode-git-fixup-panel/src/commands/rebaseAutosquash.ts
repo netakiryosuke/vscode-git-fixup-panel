@@ -15,10 +15,14 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 		return;
 	}
 
-	// 作業ツリーやインデックスに未コミットの変更がある場合はrebaseを行わない
-	if (repo.state.workingTreeChanges.length > 0 || repo.state.indexChanges.length > 0) {
+	// 作業ツリー・インデックス・マージ中のいずれかに変更がある場合はrebaseを行わない
+	if (
+		repo.state.workingTreeChanges.length > 0 ||
+		repo.state.indexChanges.length > 0 ||
+		repo.state.mergeChanges.length > 0
+	) {
 		vscode.window.showWarningMessage(
-			'作業ツリーまたはインデックスに変更があります。コミットまたはスタッシュしてからrebaseしてください。'
+			'作業ツリーまたはインデックスに変更があるか、マージが進行中です。コミットまたはスタッシュし、マージを完了または中止してからrebaseしてください。'
 		);
 		return;
 	}

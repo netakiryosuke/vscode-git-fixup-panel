@@ -74,9 +74,9 @@ export async function fixupCommand(): Promise<void> {
 	);
 
 	if (answer === REBASE_BUTTON) {
-		if (repo.state.workingTreeChanges.length > 0) {
+		if (repo.state.workingTreeChanges.length > 0 || repo.state.mergeChanges.length > 0) {
 			vscode.window.showWarningMessage(
-				'作業ツリーに変更があります。コミットまたはスタッシュしてからrebaseしてください。'
+				'作業ツリーに変更があるか、マージが進行中です。コミットまたはスタッシュし、マージを完了または中止してから rebase してください。'
 			);
 			return;
 		}
