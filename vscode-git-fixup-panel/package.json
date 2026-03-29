@@ -17,16 +17,30 @@
     "commands": [
       {
         "command": "vscode-git-fixup-panel.fixup",
-        "title": "Git: Create Fixup Commit",
-        "category": "Git Fixup"
+        "title": "Create Fixup Commit",
+        "category": "Git Fixup",
+        "icon": "$(git-commit)"
       },
       {
         "command": "vscode-git-fixup-panel.rebaseAutosquash",
-        "title": "Git: Rebase Autosquash",
-        "category": "Git Fixup"
+        "title": "Rebase Autosquash",
+        "category": "Git Fixup",
+        "icon": "$(fold)"
       }
     ],
     "menus": {
+      "scm/title": [
+        {
+          "command": "vscode-git-fixup-panel.fixup",
+          "group": "navigation",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "vscode-git-fixup-panel.rebaseAutosquash",
+          "group": "navigation",
+          "when": "scmProvider == git"
+        }
+      ],
       "commandPalette": [
         {
           "command": "vscode-git-fixup-panel.fixup"
