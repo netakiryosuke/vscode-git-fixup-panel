@@ -3,9 +3,15 @@
   "displayName": "Git Fixup Panel",
   "description": "Create fixup commits and run autosquash rebase from VS Code",
   "version": "0.0.1",
-  "engines": { "vscode": "^1.110.0" },
-  "categories": ["Other"],
-  "activationEvents": ["onStartupFinished"],
+  "engines": {
+    "vscode": "^1.110.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -22,8 +28,12 @@
     ],
     "menus": {
       "commandPalette": [
-        { "command": "vscode-git-fixup-panel.fixup" },
-        { "command": "vscode-git-fixup-panel.rebaseAutosquash" }
+        {
+          "command": "vscode-git-fixup-panel.fixup"
+        },
+        {
+          "command": "vscode-git-fixup-panel.rebaseAutosquash"
+        }
       ]
     }
   },
@@ -40,6 +50,7 @@
     "@types/vscode": "^1.110.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.7.1",
     "eslint": "^9.39.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1"
