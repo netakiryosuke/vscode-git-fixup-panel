@@ -11,6 +11,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: Production
     defaults:
       run:
         working-directory: vscode-git-fixup-panel
