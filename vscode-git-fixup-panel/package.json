@@ -5,8 +5,7 @@
   "version": "0.0.1",
   "engines": { "vscode": "^1.110.0" },
   "categories": ["Other"],
-  "extensionDependencies": ["vscode.git"],
-  "activationEvents": [],
+  "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
