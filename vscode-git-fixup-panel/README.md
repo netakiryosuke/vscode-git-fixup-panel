@@ -68,6 +68,10 @@ This extension does not add its own settings. It reads the following built-in VS
 
 ## Release Notes
 
+### 0.0.4
+
+- Update README GIFs to better illustrate the workflow.
+
 ### 0.0.3
 
 - Fix release pipeline: `package.json` version is now automatically synced from the git tag before publishing.
