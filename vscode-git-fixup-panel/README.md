@@ -17,13 +17,13 @@ Both commands are accessible from the Source Control panel title bar buttons and
 
 Stage your changes, then pick which commit to fix up from a quick-pick list of your recent 20 commits. A `fixup!` commit is created instantly. After creation you can choose to run the autosquash rebase immediately or defer it.
 
-![fixup](https://github.com/user-attachments/assets/d154a020-a9da-4701-a25e-eec785fc7246)
+![fixup (2)](https://github.com/user-attachments/assets/bb4a13b1-c97c-4a94-ad67-be064fc0885d)
 
 ### Rebase Autosquash
 
 Select a base commit and the extension runs `git rebase -i --autosquash <sha>^` without opening an editor. All pending `fixup!` and `squash!` commits are folded in automatically.
 
-![Autosquash](https://github.com/user-attachments/assets/2f17d6e0-7d9f-4488-84a1-a7b23bc392c2)
+![Autosquash (1)](https://github.com/user-attachments/assets/8f7948fc-a47e-406e-9c90-e62d4a93851c)
 
 ### Source Control Panel Buttons
 
@@ -67,6 +67,10 @@ This extension does not add its own settings. It reads the following built-in VS
 - The extension requires at least one commit in the repository.
 
 ## Release Notes
+
+### 0.0.4
+
+- Update README GIFs to better illustrate the workflow.
 
 ### 0.0.3
 
