@@ -68,6 +68,10 @@ This extension does not add its own settings. It reads the following built-in VS
 
 ## Release Notes
 
+### 0.0.5
+
+- Update dependencies.
+
 ### 0.0.4
 
 - Update README GIFs to better illustrate the workflow.
