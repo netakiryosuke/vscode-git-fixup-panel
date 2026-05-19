@@ -95,12 +95,13 @@ export async function runGitRestoreStaged(cwd: string): Promise<void> {
 }
 
 export async function getConflictFiles(cwd: string): Promise<string[]> {
+	// core.quotepath=false で非ASCIIパスのエスケープを防ぎ、-z でNUL区切り出力にする
 	const { stdout } = await execFileAsync(
 		getGitExecutable(),
-		['diff', '--name-only', '--diff-filter=U'],
+		['-c', 'core.quotepath=false', 'diff', '--name-only', '-z', '--diff-filter=U'],
 		{ cwd, env: GIT_ENV }
 	);
-	return stdout.split('\n').map(l => l.trim()).filter(Boolean);
+	return stdout.split('\0').filter(Boolean);
 }
 
 export async function runGitRebaseAbort(cwd: string): Promise<void> {
