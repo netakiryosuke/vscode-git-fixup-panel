@@ -73,7 +73,7 @@ export async function fixupCommand(): Promise<void> {
 	try {
 		await runGitFixup(selected.sha, repoPath);
 		vscode.window.showInformationMessage(
-			`Fixup commit created: ${selected.description} ${selected.label}`
+			`Created fixup! commit for ${selected.description}: ${selected.label}`
 		);
 	} catch (err) {
 		// 自動ステージしたファイルを元に戻す
