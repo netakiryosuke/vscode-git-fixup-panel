@@ -21,7 +21,7 @@ export async function fixupCommand(): Promise<void> {
 	// マージ中はステージング操作が競合する恐れがあるため、fixup自体を阻止する
 	if (repo.state.mergeChanges.length > 0) {
 		vscode.window.showWarningMessage(
-			'マージが進行中です。マージを完了または中止してから実行してください。'
+			'未解決のマージ競合があります。解消してからコミットしてください。'
 		);
 		return;
 	}
@@ -103,7 +103,7 @@ export async function fixupCommand(): Promise<void> {
 	if (answer === REBASE_BUTTON) {
 		if (repo.state.workingTreeChanges.length > 0 || repo.state.mergeChanges.length > 0) {
 			vscode.window.showWarningMessage(
-				'作業ツリーに変更があるか、マージが進行中です。コミットまたはスタッシュし、マージを完了または中止してから rebase してください。'
+				'作業ツリーに変更があるか、未解決のマージ競合があります。コミットまたはスタッシュし、マージを解消してから rebase してください。'
 			);
 			return;
 		}
