@@ -1,8 +1,9 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { getConflictFiles, runGitRebaseAbort } from '../git/repository';
 
+const RESOLVE_BUTTON = 'コンフリクトを解消する';
 const ABORT_BUTTON = 'Abort Rebase';
-const OPEN_SCM_BUTTON = 'ソース管理を開く';
 const MAX_CONFLICT_FILE_DISPLAY = 3;
 
 async function abortRebase(repoPath: string): Promise<void> {
@@ -35,22 +36,18 @@ export async function handleAutosquashError(err: unknown, repoPath: string): Pro
 	const fileInfo = `${displayed}${extra}`;
 
 	const answer = await vscode.window.showErrorMessage(
-		`コンフリクトが発生しました (${fileInfo})。手動で解消するか rebase を中止してください。`,
-		ABORT_BUTTON,
-		OPEN_SCM_BUTTON
+		`コンフリクトが発生しました (${fileInfo})。`,
+		RESOLVE_BUTTON,
+		ABORT_BUTTON
 	);
 
-	if (answer === ABORT_BUTTON) {
-		await abortRebase(repoPath);
-	} else if (answer === OPEN_SCM_BUTTON) {
-		await vscode.commands.executeCommand('workbench.view.scm');
-		// SCMを開いた後もAbortの選択肢を残す
-		const followUp = await vscode.window.showWarningMessage(
-			'コンフリクトを解消後、git rebase --continue を実行してください。',
-			ABORT_BUTTON
-		);
-		if (followUp === ABORT_BUTTON) {
-			await abortRebase(repoPath);
+	if (answer === RESOLVE_BUTTON) {
+		// コンフリクトファイルをすべてエディタで開く
+		for (const file of conflictFiles) {
+			const uri = vscode.Uri.file(path.join(repoPath, file));
+			await vscode.window.showTextDocument(uri, { preview: false });
 		}
+	} else if (answer === ABORT_BUTTON) {
+		await abortRebase(repoPath);
 	}
 }
