@@ -93,3 +93,17 @@ export async function runGitAddAll(cwd: string): Promise<void> {
 export async function runGitRestoreStaged(cwd: string): Promise<void> {
 	await execFileAsync(getGitExecutable(), ['restore', '--staged', '.'], { cwd, env: GIT_ENV });
 }
+
+export async function getConflictFiles(cwd: string): Promise<string[]> {
+	// core.quotepath=false で非ASCIIパスのエスケープを防ぎ、-z でNUL区切り出力にする
+	const { stdout } = await execFileAsync(
+		getGitExecutable(),
+		['-c', 'core.quotepath=false', 'diff', '--name-only', '-z', '--diff-filter=U'],
+		{ cwd, env: GIT_ENV }
+	);
+	return stdout.split('\0').filter(Boolean);
+}
+
+export async function runGitRebaseAbort(cwd: string): Promise<void> {
+	await execFileAsync(getGitExecutable(), ['rebase', '--abort'], { cwd, env: GIT_ENV });
+}

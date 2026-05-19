@@ -5,6 +5,7 @@ import {
 	getRootCommitSha,
 	runAutosquash,
 } from '../git/repository';
+import { handleAutosquashError } from './handleAutosquashError';
 
 const REBASE_BUTTON = 'Rebase now';
 
@@ -76,7 +77,7 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 			await runAutosquash(selected.sha, repoPath);
 			vscode.window.showInformationMessage('autosquash rebase が完了しました。');
 		} catch (err) {
-			vscode.window.showErrorMessage(`git rebase --autosquash の実行に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+			await handleAutosquashError(err, repoPath);
 		}
 	}
 }
