@@ -4,6 +4,8 @@ import {
 	getCommitLog,
 	getRootCommitSha,
 	runGitFixup,
+	runGitAddAll,
+	runGitRestoreStaged,
 	runAutosquash,
 } from '../git/repository';
 
@@ -16,12 +18,24 @@ export async function fixupCommand(): Promise<void> {
 		return;
 	}
 
-	if (repo.state.indexChanges.length === 0) {
+	// マージ中はステージング操作が競合する恐れがあるため、fixup自体を阻止する
+	if (repo.state.mergeChanges.length > 0) {
 		vscode.window.showWarningMessage(
-			'ステージ済みの変更がありません。git add でファイルをステージしてください。'
+			'未解決のマージ競合があります。解消してからコミットしてください。'
 		);
 		return;
 	}
+
+	const hasIndex = repo.state.indexChanges.length > 0;
+	const hasWorkingTree = repo.state.workingTreeChanges.length > 0;
+
+	if (!hasIndex && !hasWorkingTree) {
+		vscode.window.showWarningMessage('ステージ済みの変更も編集中のファイルもありません。');
+		return;
+	}
+
+	// ステージ済みがない場合はコミット選択後に自動ステージングする
+	const autoStage = !hasIndex;
 
 	const repoPath = repo.rootUri.fsPath;
 	let commits;
@@ -46,12 +60,25 @@ export async function fixupCommand(): Promise<void> {
 		return;
 	}
 
+	if (autoStage) {
+		try {
+			await runGitAddAll(repoPath);
+		} catch (err) {
+			vscode.window.showErrorMessage(`git add に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+			return;
+		}
+	}
+
 	try {
 		await runGitFixup(selected.sha, repoPath);
 		vscode.window.showInformationMessage(
 			`fixupコミットを作成しました: ${selected.description} ${selected.label}`
 		);
 	} catch (err) {
+		// 自動ステージしたファイルを元に戻す
+		if (autoStage) {
+			await runGitRestoreStaged(repoPath).catch(() => undefined);
+		}
 		vscode.window.showErrorMessage(`git commit --fixup の実行に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
 		return;
 	}
@@ -76,7 +103,7 @@ export async function fixupCommand(): Promise<void> {
 	if (answer === REBASE_BUTTON) {
 		if (repo.state.workingTreeChanges.length > 0 || repo.state.mergeChanges.length > 0) {
 			vscode.window.showWarningMessage(
-				'作業ツリーに変更があるか、マージが進行中です。コミットまたはスタッシュし、マージを完了または中止してから rebase してください。'
+				'作業ツリーに変更があるか、未解決のマージ競合があります。コミットまたはスタッシュし、マージを解消してから rebase してください。'
 			);
 			return;
 		}

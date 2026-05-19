@@ -85,3 +85,11 @@ export async function getRootCommitSha(repoPath: string): Promise<string[]> {
 	);
 	return stdout.split('\n').map(line => line.trim()).filter(Boolean);
 }
+
+export async function runGitAddAll(cwd: string): Promise<void> {
+	await execFileAsync(getGitExecutable(), ['add', '-A', '--', '.'], { cwd, env: GIT_ENV });
+}
+
+export async function runGitRestoreStaged(cwd: string): Promise<void> {
+	await execFileAsync(getGitExecutable(), ['restore', '--staged', '.'], { cwd, env: GIT_ENV });
+}
