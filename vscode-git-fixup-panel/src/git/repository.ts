@@ -93,3 +93,16 @@ export async function runGitAddAll(cwd: string): Promise<void> {
 export async function runGitRestoreStaged(cwd: string): Promise<void> {
 	await execFileAsync(getGitExecutable(), ['restore', '--staged', '.'], { cwd, env: GIT_ENV });
 }
+
+export async function getConflictFiles(cwd: string): Promise<string[]> {
+	const { stdout } = await execFileAsync(
+		getGitExecutable(),
+		['diff', '--name-only', '--diff-filter=U'],
+		{ cwd, env: GIT_ENV }
+	);
+	return stdout.split('\n').map(l => l.trim()).filter(Boolean);
+}
+
+export async function runGitRebaseAbort(cwd: string): Promise<void> {
+	await execFileAsync(getGitExecutable(), ['rebase', '--abort'], { cwd, env: GIT_ENV });
+}
