@@ -35,7 +35,7 @@ Both commands appear as icon buttons in the Source Control panel title bar so yo
 
 ### Create Fixup Commit
 
-1. Make your edits and stage them with `git add` (or VS Code's Stage Changes button).
+1. Make your edits. If you have staged changes, they will be used as-is. If nothing is staged, all working tree changes are staged automatically.
 2. Click the **commit icon** ($(git-commit)) in the Source Control panel title bar, or open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run **Git Fixup: Create Fixup Commit**.
 3. Select the commit you want to amend from the list.
 4. A `fixup!` commit is created. You will be asked whether to run autosquash rebase immediately — choose **Rebase now** or **Later**.
@@ -63,10 +63,16 @@ This extension does not add its own settings. It reads the following built-in VS
 ## Known Limitations
 
 - The commit picker shows up to **20 recent commits**. Older commits are not listed.
-- The rebase is fully non-interactive — conflicts will abort the rebase and must be resolved manually via the terminal.
+- The rebase is fully non-interactive. If conflicts occur, you can open the conflicting files directly from the error notification and resolve them, or abort the rebase with one click.
 - The extension requires at least one commit in the repository.
 
 ## Release Notes
+
+### 0.1.0
+
+- **Auto-stage on fixup**: If no files are staged when running Create Fixup Commit, all working tree changes are staged automatically. The stage is rolled back if the commit is cancelled or fails.
+- **Conflict UX for autosquash rebase**: When a rebase conflict occurs, conflicting files are listed in the notification and opened directly in the editor. A one-click **Abort Rebase** button is also provided.
+- **UI language**: All user-facing messages are now in English.
 
 ### 0.0.5
 
