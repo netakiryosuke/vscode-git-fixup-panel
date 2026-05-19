@@ -96,7 +96,7 @@ export async function fixupCommand(): Promise<void> {
 	}
 
 	const answer = await vscode.window.showWarningMessage(
-		`Run autosquash rebase now? (${selected.description}: ${selected.label})`,
+		`Run autosquash rebase now? (${selected.description}^..HEAD: ${selected.label})`,
 		REBASE_BUTTON,
 		'Later'
 	);

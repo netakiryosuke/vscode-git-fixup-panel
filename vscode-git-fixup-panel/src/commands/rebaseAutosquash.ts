@@ -67,7 +67,7 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 
 	const shortSha = selected.sha.slice(0, 7);
 	const answer = await vscode.window.showWarningMessage(
-		`Run autosquash rebase from ${shortSha}: ${selected.label} to HEAD?`,
+		`Run autosquash rebase from ${shortSha} (${selected.label}) to HEAD?`,
 		REBASE_BUTTON,
 		'Cancel'
 	);
