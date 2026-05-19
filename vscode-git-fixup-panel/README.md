@@ -102,4 +102,4 @@ This extension does not add its own settings. It reads the following built-in VS
 
 Issues and pull requests are welcome on [GitHub](https://github.com/netakiryosuke/vscode-git-fixup-panel).
 
-> 日本語ドキュメントは [README.ja.md](README.ja.md) をご覧ください。
+> 日本語ドキュメントは [README.ja.md](https://github.com/netakiryosuke/vscode-git-fixup-panel/blob/main/vscode-git-fixup-panel/README.ja.md) をご覧ください。
