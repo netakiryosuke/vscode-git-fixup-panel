@@ -12,7 +12,7 @@ const REBASE_BUTTON = 'Rebase now';
 export async function rebaseAutosquashCommand(): Promise<void> {
 	const repo = getRepository();
 	if (!repo) {
-		vscode.window.showErrorMessage('Gitリポジトリが見つかりません。');
+		vscode.window.showErrorMessage('No Git repository found.');
 		return;
 	}
 
@@ -23,7 +23,7 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 		repo.state.mergeChanges.length > 0
 	) {
 		vscode.window.showWarningMessage(
-			'作業ツリーまたはインデックスに変更があるか、マージが進行中です。コミットまたはスタッシュし、マージを完了または中止してからrebaseしてください。'
+			'Working tree or index has changes, or a merge is in progress. Commit or stash your changes and complete or abort the merge before rebasing.'
 		);
 		return;
 	}
@@ -33,12 +33,12 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 	try {
 		commits = await getCommitLog(repoPath);
 	} catch (err) {
-		vscode.window.showErrorMessage(`コミットログの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+		vscode.window.showErrorMessage(`Failed to retrieve commit log: ${err instanceof Error ? err.message : String(err)}`);
 		return;
 	}
 
 	if (commits.length === 0) {
-		vscode.window.showErrorMessage('コミット履歴が見つかりません。');
+		vscode.window.showErrorMessage('No commit history found.');
 		return;
 	}
 
@@ -47,17 +47,17 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 	try {
 		rootShas = await getRootCommitSha(repoPath);
 	} catch (err) {
-		vscode.window.showErrorMessage(`ルートコミットの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+		vscode.window.showErrorMessage(`Failed to retrieve root commit: ${err instanceof Error ? err.message : String(err)}`);
 		return;
 	}
 	const commitsForRebase = commits.filter(c => !rootShas.includes(c.sha));
 	if (commitsForRebase.length === 0) {
-		vscode.window.showErrorMessage('rebase可能なコミットがありません。コミットが1件以下です。');
+		vscode.window.showErrorMessage('No rebaseable commits. At least two commits are required.');
 		return;
 	}
 
 	const selected = await vscode.window.showQuickPick(commitsForRebase, {
-		placeHolder: 'autosquash rebase の対象コミットを選択してください',
+		placeHolder: 'Select a base commit for autosquash rebase',
 		matchOnDescription: true,
 	});
 
@@ -67,7 +67,7 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 
 	const shortSha = selected.sha.slice(0, 7);
 	const answer = await vscode.window.showWarningMessage(
-		`${shortSha} から HEAD まで autosquash rebase を実行しますか？`,
+		`Run autosquash rebase from ${shortSha} (${selected.label}) to HEAD?`,
 		REBASE_BUTTON,
 		'Cancel'
 	);
@@ -75,7 +75,7 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 	if (answer === REBASE_BUTTON) {
 		try {
 			await runAutosquash(selected.sha, repoPath);
-			vscode.window.showInformationMessage('autosquash rebase が完了しました。');
+			vscode.window.showInformationMessage('Autosquash rebase completed.');
 		} catch (err) {
 			await handleAutosquashError(err, repoPath);
 		}

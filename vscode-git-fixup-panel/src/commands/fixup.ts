@@ -15,14 +15,14 @@ const REBASE_BUTTON = 'Rebase now';
 export async function fixupCommand(): Promise<void> {
 	const repo = getRepository();
 	if (!repo) {
-		vscode.window.showErrorMessage('Gitリポジトリが見つかりません。');
+		vscode.window.showErrorMessage('No Git repository found.');
 		return;
 	}
 
 	// マージ中はステージング操作が競合する恐れがあるため、fixup自体を阻止する
 	if (repo.state.mergeChanges.length > 0) {
 		vscode.window.showWarningMessage(
-			'未解決のマージ競合があります。解消してからコミットしてください。'
+			'Unresolved merge conflicts exist. Resolve them before committing.'
 		);
 		return;
 	}
@@ -31,7 +31,7 @@ export async function fixupCommand(): Promise<void> {
 	const hasWorkingTree = repo.state.workingTreeChanges.length > 0;
 
 	if (!hasIndex && !hasWorkingTree) {
-		vscode.window.showWarningMessage('ステージ済みの変更も編集中のファイルもありません。');
+		vscode.window.showWarningMessage('No staged changes or working tree changes found.');
 		return;
 	}
 
@@ -43,17 +43,17 @@ export async function fixupCommand(): Promise<void> {
 	try {
 		commits = await getCommitLog(repoPath);
 	} catch (err) {
-		vscode.window.showErrorMessage(`コミットログの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+		vscode.window.showErrorMessage(`Failed to retrieve commit log: ${err instanceof Error ? err.message : String(err)}`);
 		return;
 	}
 
 	if (commits.length === 0) {
-		vscode.window.showErrorMessage('コミット履歴が見つかりません。');
+		vscode.window.showErrorMessage('No commit history found.');
 		return;
 	}
 
 	const selected = await vscode.window.showQuickPick(commits, {
-		placeHolder: 'fixupするコミットを選択してください',
+		placeHolder: 'Select a commit to fixup',
 		matchOnDescription: true,
 	});
 
@@ -65,7 +65,7 @@ export async function fixupCommand(): Promise<void> {
 		try {
 			await runGitAddAll(repoPath);
 		} catch (err) {
-			vscode.window.showErrorMessage(`git add に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+			vscode.window.showErrorMessage(`git add failed: ${err instanceof Error ? err.message : String(err)}`);
 			return;
 		}
 	}
@@ -73,14 +73,14 @@ export async function fixupCommand(): Promise<void> {
 	try {
 		await runGitFixup(selected.sha, repoPath);
 		vscode.window.showInformationMessage(
-			`fixupコミットを作成しました: ${selected.description} ${selected.label}`
+			`Created fixup! commit for ${selected.description}: ${selected.label}`
 		);
 	} catch (err) {
 		// 自動ステージしたファイルを元に戻す
 		if (autoStage) {
 			await runGitRestoreStaged(repoPath).catch(() => undefined);
 		}
-		vscode.window.showErrorMessage(`git commit --fixup の実行に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+		vscode.window.showErrorMessage(`Failed to run git commit --fixup: ${err instanceof Error ? err.message : String(err)}`);
 		return;
 	}
 
@@ -96,7 +96,7 @@ export async function fixupCommand(): Promise<void> {
 	}
 
 	const answer = await vscode.window.showWarningMessage(
-		`autosquash rebase を今すぐ実行しますか？ (対象: ${selected.description}^..HEAD)`,
+		`Run autosquash rebase now? (${selected.description}^..HEAD: ${selected.label})`,
 		REBASE_BUTTON,
 		'Later'
 	);
@@ -104,13 +104,13 @@ export async function fixupCommand(): Promise<void> {
 	if (answer === REBASE_BUTTON) {
 		if (repo.state.workingTreeChanges.length > 0 || repo.state.mergeChanges.length > 0) {
 			vscode.window.showWarningMessage(
-				'作業ツリーに変更があるか、未解決のマージ競合があります。コミットまたはスタッシュし、マージを解消してから rebase してください。'
+				'Working tree has changes or unresolved merge conflicts. Commit or stash your changes and resolve the merge before rebasing.'
 			);
 			return;
 		}
 		try {
 			await runAutosquash(selected.sha, repoPath);
-			vscode.window.showInformationMessage('autosquash rebase が完了しました。');
+			vscode.window.showInformationMessage('Autosquash rebase completed.');
 		} catch (err) {
 			await handleAutosquashError(err, repoPath);
 		}
