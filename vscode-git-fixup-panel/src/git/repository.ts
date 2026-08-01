@@ -68,12 +68,10 @@ export async function runGitFixup(sha: string, cwd: string): Promise<void> {
 }
 
 export async function runAutosquash(sha: string, repoPath: string): Promise<void> {
-	// Windows では : がコマンドとして解決できないため cmd /c exit 0 を使う
-	const sequenceEditor = process.platform === 'win32' ? 'cmd /c exit 0' : ':';
 	// GIT_SEQUENCE_EDITOR でエディタを起動せず非インタラクティブに実行する
 	await execFileAsync(getGitExecutable(), ['rebase', '-i', '--autosquash', `${sha}^`], {
 		cwd: repoPath,
-		env: { ...GIT_ENV, GIT_SEQUENCE_EDITOR: sequenceEditor },
+		env: { ...GIT_ENV, GIT_SEQUENCE_EDITOR: ':' },
 	});
 }
 
