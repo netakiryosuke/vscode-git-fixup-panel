@@ -13,7 +13,7 @@ const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const GIT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
 
 // vscode.git の git.path 設定を尊重する。未設定なら PATH 上の git を使う
-function getGitExecutable(): string {
+export function getGitExecutable(): string {
 	return vscode.workspace.getConfiguration('git').get<string>('path') || 'git';
 }
 

@@ -4,13 +4,13 @@ import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
 import { promisify } from 'util';
-import { runAutosquash } from '../git/repository';
+import { getGitExecutable, runAutosquash } from '../git/repository';
 
 const execFileAsync = promisify(execFile);
 const TEST_TIMEOUT_MS = 30_000;
 
 async function runGit(repoPath: string, args: string[]): Promise<string> {
-	const { stdout } = await execFileAsync('git', args, { cwd: repoPath });
+	const { stdout } = await execFileAsync(getGitExecutable(), args, { cwd: repoPath });
 	return stdout;
 }
 
