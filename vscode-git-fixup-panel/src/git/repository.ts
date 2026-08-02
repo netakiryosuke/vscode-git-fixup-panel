@@ -13,7 +13,7 @@ const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const GIT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
 
 // vscode.git の git.path 設定を尊重する。未設定なら PATH 上の git を使う
-function getGitExecutable(): string {
+export function getGitExecutable(): string {
 	return vscode.workspace.getConfiguration('git').get<string>('path') || 'git';
 }
 
@@ -68,12 +68,10 @@ export async function runGitFixup(sha: string, cwd: string): Promise<void> {
 }
 
 export async function runAutosquash(sha: string, repoPath: string): Promise<void> {
-	// Windows では : がコマンドとして解決できないため cmd /c exit 0 を使う
-	const sequenceEditor = process.platform === 'win32' ? 'cmd /c exit 0' : ':';
 	// GIT_SEQUENCE_EDITOR でエディタを起動せず非インタラクティブに実行する
 	await execFileAsync(getGitExecutable(), ['rebase', '-i', '--autosquash', `${sha}^`], {
 		cwd: repoPath,
-		env: { ...GIT_ENV, GIT_SEQUENCE_EDITOR: sequenceEditor },
+		env: { ...GIT_ENV, GIT_SEQUENCE_EDITOR: ':' },
 	});
 }
 
