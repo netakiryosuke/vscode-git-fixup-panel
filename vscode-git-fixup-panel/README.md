@@ -68,6 +68,10 @@ This extension does not add its own settings. It reads the following built-in VS
 
 ## Release Notes
 
+### 0.1.1
+
+- Fix an issue where autosquash rebase failed on Windows.
+
 ### 0.1.0
 
 - **Auto-stage on fixup**: If no files are staged when running Create Fixup Commit, all working tree changes are staged automatically. The stage is rolled back if the commit is cancelled or fails.
