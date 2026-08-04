@@ -47,3 +47,5 @@ jobs:
       - name: Run tests on macOS
         if: runner.os == 'macOS'
         run: npm test
+        env:
+          VSCODE_TEST_USER_DATA_DIR: ${{ runner.temp }}/vscode-test-user-data
