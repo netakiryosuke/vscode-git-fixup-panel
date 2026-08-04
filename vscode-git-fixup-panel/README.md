@@ -69,6 +69,11 @@ This extension provides a setting for the post-fixup workflow and respects the b
 
 ## Release Notes
 
+### 0.2.0
+
+- **Optional post-fixup rebase prompt**: Added the `vscode-git-fixup-panel.promptRebaseAfterFixup` setting. Disable it to create fixup commits without being prompted to run an autosquash rebase. The default value is `true` to preserve the existing behavior.
+- **Test and CI coverage**: Expanded Git integration test coverage and added macOS to the CI matrix alongside Windows and Linux.
+
 ### 0.1.1
 
 - Fix an issue where autosquash rebase failed on Windows.

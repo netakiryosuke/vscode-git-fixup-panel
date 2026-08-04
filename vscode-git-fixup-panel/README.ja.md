@@ -69,6 +69,11 @@ Git Fixup Panel は、ソース管理パネルに 2 つのコマンドを追加�
 
 ## リリースノート
 
+### 0.2.0
+
+- **fixup 後の rebase 確認設定**: `vscode-git-fixup-panel.promptRebaseAfterFixup` 設定を追加しました。無効にすると、fixup コミット作成後に autosquash rebase の実行確認を表示しません。既存の動作を維持するため、既定値は `true` です。
+- **テストと CI の拡充**: Git 統合テストを拡充し、Windows・Linux に加えて macOS を CI の対象に追加しました。
+
 ### 0.1.1
 
 - Windows 環境で autosquash rebase が失敗する問題を修正しました。
