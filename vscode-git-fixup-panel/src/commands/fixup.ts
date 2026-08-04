@@ -8,6 +8,7 @@ import {
 	runGitRestoreStaged,
 	runAutosquash,
 } from '../git/repository';
+import { shouldPromptRebaseAfterFixup } from '../configuration';
 import { handleAutosquashError } from './handleAutosquashError';
 
 const REBASE_BUTTON = 'Rebase now';
@@ -81,6 +82,10 @@ export async function fixupCommand(): Promise<void> {
 			await runGitRestoreStaged(repoPath).catch(() => undefined);
 		}
 		vscode.window.showErrorMessage(`Failed to run git commit --fixup: ${err instanceof Error ? err.message : String(err)}`);
+		return;
+	}
+
+	if (!shouldPromptRebaseAfterFixup(repo.rootUri)) {
 		return;
 	}
 

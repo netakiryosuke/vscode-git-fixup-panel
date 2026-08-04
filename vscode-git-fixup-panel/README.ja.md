@@ -38,7 +38,7 @@ Git Fixup Panel は、ソース管理パネルに 2 つのコマンドを追加�
 1. 修正内容を編集します。ステージ済みの変更がある場合はそのまま使用されます。何もステージされていない場合は、作業ツリーの全変更が自動でステージングされます。
 2. ソース管理パネルのタイトルバーにある **コミットアイコン**（$(git-commit)）をクリック、またはコマンドパレット（`Ctrl+Shift+P` / `Cmd+Shift+P`）から **Git Fixup: Create Fixup Commit** を実行します。
 3. 一覧から修正対象のコミットを選択します。
-4. `fixup!` コミットが作成されます。続けて autosquash rebase を行うか確認するダイアログが表示されます。**Rebase now** または **Later** を選択してください。
+4. `fixup!` コミットが作成されます。既定では、続けて autosquash rebase を行うか確認するダイアログが表示されます。**Rebase now** または **Later** を選択してください。この確認は拡張機能の設定で無効化できます。
 
 ### Rebase Autosquash
 
@@ -54,10 +54,11 @@ Git Fixup Panel は、ソース管理パネルに 2 つのコマンドを追加�
 
 ## 拡張機能の設定
 
-本拡張機能独自の設定項目はありません。以下の VS Code 組み込み設定を参照します。
+本拡張機能は fixup 後の動作を制御する設定を提供し、以下の VS Code 組み込み Git 設定も参照します。
 
 | 設定 | 説明 |
 |------|------|
+| `vscode-git-fixup-panel.promptRebaseAfterFixup` | fixup コミット作成後に autosquash rebase の実行確認を表示するかどうか。既定値は `true` です。 |
 | `git.path` | Git 実行ファイルのパス。未設定の場合は `PATH` 上の `git` を使用します。 |
 
 ## 既知の制限
