@@ -25,7 +25,7 @@ export async function createTestRepository(prefix = 'git-fixup-test-'): Promise<
 	const repoPath = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
 
 	try {
-		// Production currently parses SHA-1 object names, so keep the fixture independent of user defaults.
+		// 本番コードはSHA-1形式を前提としているため、ユーザー設定に関係なくテストリポジトリをSHA-1で初期化する
 		await runGit(repoPath, ['init', '--quiet', '--object-format=sha1']);
 
 		const hooksPath = path.join(repoPath, '.git', 'test-hooks');
