@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "configuration-workspace"
+		}
+	],
+	"settings": {
+		"vscode-git-fixup-panel.promptRebaseAfterFixup": true
+	}
+}

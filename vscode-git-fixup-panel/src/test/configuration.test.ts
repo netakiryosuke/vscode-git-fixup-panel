@@ -33,38 +33,22 @@ suite('Configuration Test Suite', () => {
 		);
 	});
 
-	test('reads the post-fixup rebase prompt setting', async () => {
+	test('resolves the post-fixup rebase prompt setting by resource', () => {
 		const extension = findExtension();
 		assert.ok(extension, 'Extension should be present');
 
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+		assert.ok(workspaceFolder, 'Test workspace folder should be present');
+
 		const configuration = vscode.workspace.getConfiguration(
 			CONFIGURATION_SECTION,
-			extension.extensionUri
+			workspaceFolder.uri
 		);
-		const previousGlobalValue = configuration.inspect<boolean>(
-			PROMPT_REBASE_AFTER_FIXUP_SETTING
-		)?.globalValue;
+		const inspected = configuration.inspect<boolean>(PROMPT_REBASE_AFTER_FIXUP_SETTING);
 
-		try {
-			await configuration.update(
-				PROMPT_REBASE_AFTER_FIXUP_SETTING,
-				true,
-				vscode.ConfigurationTarget.Global
-			);
-			assert.strictEqual(shouldPromptRebaseAfterFixup(extension.extensionUri), true);
-
-			await configuration.update(
-				PROMPT_REBASE_AFTER_FIXUP_SETTING,
-				false,
-				vscode.ConfigurationTarget.Global
-			);
-			assert.strictEqual(shouldPromptRebaseAfterFixup(extension.extensionUri), false);
-		} finally {
-			await configuration.update(
-				PROMPT_REBASE_AFTER_FIXUP_SETTING,
-				previousGlobalValue,
-				vscode.ConfigurationTarget.Global
-			);
-		}
+		assert.strictEqual(inspected?.workspaceValue, true);
+		assert.strictEqual(inspected?.workspaceFolderValue, false);
+		assert.strictEqual(shouldPromptRebaseAfterFixup(workspaceFolder.uri), false);
+		assert.strictEqual(shouldPromptRebaseAfterFixup(extension.extensionUri), true);
 	});
 });
