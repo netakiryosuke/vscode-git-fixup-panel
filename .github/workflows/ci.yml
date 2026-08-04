@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -43,3 +43,9 @@ jobs:
       - name: Run tests on Windows
         if: runner.os == 'Windows'
         run: npm test
+
+      - name: Run tests on macOS
+        if: runner.os == 'macOS'
+        run: npm test
+        env:
+          VSCODE_TEST_USER_DATA_DIR: ${{ runner.temp }}/vscode-test-user-data
