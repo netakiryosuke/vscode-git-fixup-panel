@@ -20,6 +20,17 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Git Fixup Panel",
+      "properties": {
+        "vscode-git-fixup-panel.promptRebaseAfterFixup": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Controls whether to prompt for an autosquash rebase after creating a fixup commit."
+        }
+      }
+    },
     "commands": [
       {
         "command": "vscode-git-fixup-panel.fixup",

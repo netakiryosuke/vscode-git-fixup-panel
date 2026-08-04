@@ -38,7 +38,7 @@ Both commands appear as icon buttons in the Source Control panel title bar so yo
 1. Make your edits. If you have staged changes, they will be used as-is. If nothing is staged, all working tree changes are staged automatically.
 2. Click the **commit icon** ($(git-commit)) in the Source Control panel title bar, or open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run **Git Fixup: Create Fixup Commit**.
 3. Select the commit you want to amend from the list.
-4. A `fixup!` commit is created. You will be asked whether to run autosquash rebase immediately — choose **Rebase now** or **Later**.
+4. A `fixup!` commit is created. By default, you will be asked whether to run autosquash rebase immediately — choose **Rebase now** or **Later**. You can disable this prompt in the extension settings.
 
 ### Rebase Autosquash
 
@@ -54,10 +54,11 @@ Both commands appear as icon buttons in the Source Control panel title bar so yo
 
 ## Extension Settings
 
-This extension does not add its own settings. It reads the following built-in VS Code setting:
+This extension provides a setting for the post-fixup workflow and respects the built-in Git setting below:
 
 | Setting | Description |
 |---------|-------------|
+| `vscode-git-fixup-panel.promptRebaseAfterFixup` | Whether to prompt for an autosquash rebase after creating a fixup commit. Defaults to `true`. |
 | `git.path` | Path to the Git executable. Falls back to `git` on `PATH` if not set. |
 
 ## Known Limitations
