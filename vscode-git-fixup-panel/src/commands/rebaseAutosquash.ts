@@ -5,9 +5,9 @@ import {
 	getRootCommitSha,
 	runAutosquash,
 } from '../git/repository';
+import { inferAutosquashBase } from '../git/inferAutosquashBase';
 import { handleAutosquashError } from './handleAutosquashError';
-
-const REBASE_BUTTON = 'Rebase now';
+import { pickRebaseCommit } from './pickRebaseCommit';
 
 export async function rebaseAutosquashCommand(): Promise<void> {
 	const repo = getRepository();
@@ -56,28 +56,17 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 		return;
 	}
 
-	const selected = await vscode.window.showQuickPick(commitsForRebase, {
-		placeHolder: 'Select a base commit for autosquash rebase',
-		matchOnDescription: true,
-	});
+	const suggested = await inferAutosquashBase(repoPath, commits);
+	const selected = await pickRebaseCommit(commitsForRebase, suggested);
 
 	if (!selected) {
 		return;
 	}
 
-	const shortSha = selected.sha.slice(0, 7);
-	const answer = await vscode.window.showWarningMessage(
-		`Run autosquash rebase from ${shortSha} (${selected.label}) to HEAD?`,
-		REBASE_BUTTON,
-		'Cancel'
-	);
-
-	if (answer === REBASE_BUTTON) {
-		try {
-			await runAutosquash(selected.sha, repoPath);
-			vscode.window.showInformationMessage('Autosquash rebase completed.');
-		} catch (err) {
-			await handleAutosquashError(err, repoPath);
-		}
+	try {
+		await runAutosquash(selected.sha, repoPath);
+		vscode.window.showInformationMessage('Autosquash rebase completed.');
+	} catch (err) {
+		await handleAutosquashError(err, repoPath);
 	}
 }

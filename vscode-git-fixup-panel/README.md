@@ -23,6 +23,10 @@ Stage your changes, then pick which commit to fix up from a quick-pick list of y
 
 Select a base commit and the extension runs `git rebase -i --autosquash <sha>^` without opening an editor. All pending `fixup!` and `squash!` commits are folded in automatically.
 
+The picker checks the most recent 20 commits for `fixup!` / `squash!` messages. When every target can be identified by an exact, unique subject match in a linear history, the oldest target commit is highlighted initially. Targets can be older than 20 commits; an inferred target outside the normal list is added as one extra item. You can select another commit or press Esc to cancel. Accepting a commit starts the rebase immediately, with no additional confirmation dialog. The separate prompt after Create Fixup Commit is still controlled by `vscode-git-fixup-panel.promptRebaseAfterFixup`.
+
+Target lookup has no commit-count limit, but stops after two seconds. If lookup fails or a target is ambiguous or unsupported, the first item stays highlighted as before. The 20-commit scan limit applies only to the suggestion: autosquash still processes the selected rebase range.
+
 ![Autosquash (1)](https://github.com/user-attachments/assets/8f7948fc-a47e-406e-9c90-e62d4a93851c)
 
 ### Source Control Panel Buttons
@@ -44,8 +48,8 @@ Both commands appear as icon buttons in the Source Control panel title bar so yo
 
 1. Make sure your working tree is clean (no uncommitted changes, no merge in progress).
 2. Click the **fold icon** ($(fold)) in the Source Control panel title bar, or run **Git Fixup: Rebase Autosquash** from the Command Palette.
-3. Select the base commit — the rebase will apply from that commit up to `HEAD`.
-4. The rebase runs silently and completes without opening an interactive editor.
+3. Review the suggested commit, if available, or choose another base commit. Press Enter to start the rebase from that commit (inclusive) up to `HEAD`, or press Esc to cancel.
+4. The rebase starts without an additional confirmation dialog or an interactive editor.
 
 ## Requirements
 
@@ -63,7 +67,8 @@ This extension provides a setting for the post-fixup workflow and respects the b
 
 ## Known Limitations
 
-- The commit picker shows up to **20 recent commits**. Older commits are not listed.
+- The commit picker shows up to **20 recent commits**. Rebase Autosquash can additionally show one inferred older target. The scan and display counts are not configurable.
+- Automatic suggestions require exact, unique target subjects. Hash references, subject prefixes, nested fixups, `amend!` messages, root targets, merges within the proposed range, and shallow history fall back to manual selection.
 - The rebase is fully non-interactive. If conflicts occur, you can open the conflicting files directly from the error notification and resolve them, or abort the rebase with one click.
 - The extension requires at least one commit in the repository.
 
