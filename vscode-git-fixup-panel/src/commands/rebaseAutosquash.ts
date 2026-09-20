@@ -9,8 +9,6 @@ import { inferAutosquashBase } from '../git/inferAutosquashBase';
 import { handleAutosquashError } from './handleAutosquashError';
 import { pickRebaseCommit } from './pickRebaseCommit';
 
-const REBASE_BUTTON = 'Rebase now';
-
 export async function rebaseAutosquashCommand(): Promise<void> {
 	const repo = getRepository();
 	if (!repo) {
@@ -65,19 +63,10 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 		return;
 	}
 
-	const shortSha = selected.sha.slice(0, 7);
-	const answer = await vscode.window.showWarningMessage(
-		`Run autosquash rebase from ${shortSha} (${selected.label}) to HEAD?`,
-		REBASE_BUTTON,
-		'Cancel'
-	);
-
-	if (answer === REBASE_BUTTON) {
-		try {
-			await runAutosquash(selected.sha, repoPath);
-			vscode.window.showInformationMessage('Autosquash rebase completed.');
-		} catch (err) {
-			await handleAutosquashError(err, repoPath);
-		}
+	try {
+		await runAutosquash(selected.sha, repoPath);
+		vscode.window.showInformationMessage('Autosquash rebase completed.');
+	} catch (err) {
+		await handleAutosquashError(err, repoPath);
 	}
 }

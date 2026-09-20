@@ -43,6 +43,10 @@ suite('Rebase Commit Picker Test Suite', () => {
 	test('highlights the inferred item without reordering or duplicating existing items', async () => {
 		const selection = pickRebaseCommit(commits, { ...commits[10] });
 		assert.ok(shown);
+		assert.strictEqual(picker.title, 'Rebase Autosquash');
+		assert.match(picker.placeholder ?? '', /Enter to rebase/);
+		assert.match(picker.placeholder ?? '', /selected commit \(inclusive\) to HEAD/);
+		assert.match(picker.placeholder ?? '', /Esc to cancel/);
 		assert.deepStrictEqual(picker.items, commits);
 		assert.strictEqual(picker.activeItems[0], commits[10]);
 		assert.strictEqual(picker.matchOnDescription, true);

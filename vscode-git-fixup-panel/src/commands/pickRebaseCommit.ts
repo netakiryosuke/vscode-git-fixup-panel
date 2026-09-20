@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { CommitEntry } from '../git/repository';
 
+const PICKER_TITLE = 'Rebase Autosquash';
+const PICKER_PLACEHOLDER = 'Press Enter to rebase from the selected commit (inclusive) to HEAD, or Esc to cancel';
+
 export function pickRebaseCommit(
 	commits: readonly CommitEntry[],
 	suggested: CommitEntry | undefined,
@@ -14,7 +17,8 @@ export function pickRebaseCommit(
 			active = suggested;
 		}
 		picker.items = items;
-		picker.placeholder = 'Select a base commit for autosquash rebase';
+		picker.title = PICKER_TITLE;
+		picker.placeholder = PICKER_PLACEHOLDER;
 		picker.matchOnDescription = true;
 		picker.activeItems = active ? [active] : items.slice(0, 1);
 
