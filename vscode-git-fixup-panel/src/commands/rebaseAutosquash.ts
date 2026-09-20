@@ -5,7 +5,9 @@ import {
 	getRootCommitSha,
 	runAutosquash,
 } from '../git/repository';
+import { inferAutosquashBase } from '../git/inferAutosquashBase';
 import { handleAutosquashError } from './handleAutosquashError';
+import { pickRebaseCommit } from './pickRebaseCommit';
 
 const REBASE_BUTTON = 'Rebase now';
 
@@ -56,10 +58,8 @@ export async function rebaseAutosquashCommand(): Promise<void> {
 		return;
 	}
 
-	const selected = await vscode.window.showQuickPick(commitsForRebase, {
-		placeHolder: 'Select a base commit for autosquash rebase',
-		matchOnDescription: true,
-	});
+	const suggested = await inferAutosquashBase(repoPath, commits);
+	const selected = await pickRebaseCommit(commitsForRebase, suggested);
 
 	if (!selected) {
 		return;
