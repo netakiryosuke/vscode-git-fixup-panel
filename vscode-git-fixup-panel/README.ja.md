@@ -74,6 +74,11 @@ Git Fixup Panel は、ソース管理パネルに 2 つのコマンドを追加�
 
 ## リリースノート
 
+### 0.3.0
+
+- **autosquash のベースコミット推定**: Rebase Autosquash で直近 20 件の `fixup!` / `squash!` コミットを調べ、すべての修正対象を一意に特定できた場合に最も古い対象を初期選択します。対象が通常の一覧より古い場合は候補に追加し、対象が曖昧な場合や探索が時間切れになった場合は手動選択に戻ります。
+- **rebase の操作を簡略化**: コミット選択の確定で、追加の確認ダイアログなしに rebase を開始するようにしました。選択画面に対象範囲と Enter / Esc の操作を明示しています。fixup 作成直後の rebase 確認とその設定は従来どおりです。
+
 ### 0.2.0
 
 - **fixup 後の rebase 確認設定**: `vscode-git-fixup-panel.promptRebaseAfterFixup` 設定を追加しました。無効にすると、fixup コミット作成後に autosquash rebase の実行確認を表示しません。既存の動作を維持するため、既定値は `true` です。

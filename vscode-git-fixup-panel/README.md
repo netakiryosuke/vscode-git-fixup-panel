@@ -74,6 +74,11 @@ This extension provides a setting for the post-fixup workflow and respects the b
 
 ## Release Notes
 
+### 0.3.0
+
+- **Autosquash base suggestions**: Rebase Autosquash now checks the most recent 20 commits for `fixup!` / `squash!` messages and preselects the oldest target when all targets can be identified uniquely. An inferred target older than the normal list is added to the picker. Ambiguous targets or a lookup timeout fall back to manual selection.
+- **Streamlined rebase flow**: Accepting a commit now starts the rebase without an additional confirmation dialog. The picker explains the rebase range and the Enter / Esc actions. The separate post-fixup rebase prompt and its setting are unchanged.
+
 ### 0.2.0
 
 - **Optional post-fixup rebase prompt**: Added the `vscode-git-fixup-panel.promptRebaseAfterFixup` setting. Disable it to create fixup commits without being prompted to run an autosquash rebase. The default value is `true` to preserve the existing behavior.
