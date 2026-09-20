@@ -19,7 +19,7 @@ export async function inferAutosquashBase(
 		if (!match) {
 			continue;
 		}
-		// Gitの全照合ルールを再実装せず、通常の件名指定だけを提案対象にする。
+		// Restrict suggestions to plain subjects to avoid duplicating Git's full matching rules.
 		if (match[1] === 'amend' || !match[2] || AUTOSQUASH_SUBJECT.test(match[2])) {
 			return undefined;
 		}
@@ -40,7 +40,7 @@ export async function inferAutosquashBase(
 		const { stdout } = await execFileAsync(git, ['rev-parse', '--is-shallow-repository'], {
 			cwd: repoPath, env, timeout: timeoutMs,
 		});
-		// 履歴が欠けていると、件名が一意かどうかを確認できない。
+		// Incomplete history cannot establish whether a subject is unique.
 		if (stdout.trim() !== 'false') {
 			return undefined;
 		}
@@ -56,7 +56,7 @@ export async function inferAutosquashBase(
 	const targets = new Map<string, CommitEntry>();
 	let oldest: CommitEntry | undefined;
 	let hasMerge = false;
-	// 日時の逆転に影響されない順序で、取得済み一覧と同じHEADから探索する。
+	// Use the list's HEAD snapshot and ancestry order, regardless of commit timestamps.
 	const child = spawn(git, [
 		'log', '--topo-order', '--no-decorate', '--no-show-signature',
 		'--format=%H%x00%P%x00%s', head, '--',
@@ -67,7 +67,7 @@ export async function inferAutosquashBase(
 	});
 	const lines = createInterface({ input: child.stdout, crlfDelay: Infinity });
 	try {
-		// 全履歴をメモリに蓄えず、直近のfixupが参照する件名だけ保持する。
+		// Keep memory bounded by retaining only subjects referenced by recent fixups.
 		for await (const line of lines) {
 			if (Date.now() >= deadline) {
 				return undefined;
@@ -95,7 +95,7 @@ export async function inferAutosquashBase(
 			oldest = { sha, label: subject, description: sha.slice(0, 7) };
 			targets.set(subject, oldest);
 		}
-		// 対象発見後も最後まで読み、同名の古いコミットがないことを確認する。
+		// Read to the end even after finding targets to rule out older duplicate subjects.
 		if (!await completed || pending.size !== 0 || targets.size !== subjects.size) {
 			return undefined;
 		}
