@@ -15,7 +15,7 @@ Both commands are accessible from the Source Control panel title bar buttons and
 
 ### GitLens Commit Graph integration (Beta)
 
-This branch adds an experimental **Git Fixup: Create Fixup Commit (Beta)** action to the right-click menu of a single commit in GitLens Commit Graph (editor or sidebar). It uses that commit directly, including commits older than 20 entries, without opening the commit picker.
+This branch adds an experimental **Create Fixup Commit — Git Fixup Panel (Beta)** action to a separate group in the right-click menu of a single commit in GitLens Commit Graph (editor or sidebar). It uses that commit directly, including commits older than 20 entries, without opening the commit picker.
 
 The commit must belong to the current `HEAD` history in the graph's selected local repository, which must also be open in VS Code's built-in Git extension. Changes are committed in that repository, regardless of the active editor. Existing staged changes are used as-is; when nothing is staged, all working tree changes are staged automatically. The post-fixup rebase prompt follows the existing setting.
 
