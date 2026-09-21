@@ -55,7 +55,7 @@
         {
           "command": "vscode-git-fixup-panel.gitlensFixup",
           "when": "(webview == gitlens.graph || webview == gitlens.views.graph) && webviewItem =~ /^gitlens:commit\\b(?=.*\\+current\\b)(?!.*\\+worktreeHEAD\\b)/ && !listMultiSelection && !gitlens:readonly && !gitlens:untrusted && !gitlens:hasVirtualFolders && isWorkspaceTrusted",
-          "group": "2_git_fixup_panel@1"
+          "group": "1_gitlens_actions_0_git_fixup_panel@1"
         }
       ],
       "scm/title": [

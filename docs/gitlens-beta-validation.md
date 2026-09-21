@@ -23,7 +23,7 @@ The context fixtures follow GitLens v19.2.0:
 
 Use disposable repositories and a VS Code profile with this development extension and GitLens. Access to GitLens Commit Graph may require signing in; a signed-out GitLens 19.2.0 profile displayed an account gate during validation. Do not treat the context fixture tests as verification of GitLens's actual UI.
 
-1. Open Commit Graph in the editor. Modify a tracked file and right-click a commit in the current HEAD history. Confirm **Create Fixup Commit — Git Fixup Panel (Beta)** appears in its own group, separated from GitLens actions by a divider, without a submenu.
+1. Open Commit Graph in the editor. Modify a tracked file and right-click a commit in the current HEAD history. Confirm **Create Fixup Commit — Git Fixup Panel (Beta)** appears in its own group between GitLens's commit actions and branch/tag/worktree creation actions, separated by dividers, without a submenu. This placement follows GitLens 19.2.0's `1_gitlens_actions` and `1_gitlens_actions_1` groups.
 2. Run the action. Confirm there is no commit picker, the new subject is `fixup! <selected subject>`, and the existing rebase prompt appears. Choose **Later**.
 3. Repeat from the sidebar graph, then with `vscode-git-fixup-panel.promptRebaseAfterFixup` disabled. Confirm the prompt is omitted.
 4. Stage one change and leave another unstaged. Confirm only the staged change enters the fixup. With nothing staged, confirm all working tree changes enter it.
