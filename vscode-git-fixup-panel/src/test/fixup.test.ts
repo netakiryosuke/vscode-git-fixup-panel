@@ -89,6 +89,42 @@ suite('Explicit Fixup Target Test Suite', function () {
 		assert.strictEqual(await runGit(repo.path, ['diff', '--cached']), '');
 	});
 
+	test('runs the registered GitLens command through to an actual fixup commit', async () => {
+		await vscode.extensions.getExtension('netakiryosuke.vscode-git-fixup-panel')!.activate();
+		await vscode.commands.executeCommand('vscode-git-fixup-panel.gitlensFixup', {
+			webview: 'gitlens.graph', webviewItem: 'gitlens:commit+current',
+			webviewItemValue: { type: 'commit', ref: { refType: 'revision', repoPath: repo.path, ref: targetSha } },
+		});
+		assert.strictEqual(requestedPath, repo.path);
+		assert.strictEqual(pickerCalls, 0);
+		assert.deepStrictEqual(errors, []);
+		assert.strictEqual((await runGit(repo.path, ['log', '-1', '--format=%s'])).trim(), 'fixup! target');
+	});
+
+	test('does not stage when the target repository is not open or has conflicts', async () => {
+		repositories.getRepository = () => undefined;
+		await createFixup({ repoPath: repo.path, sha: targetSha });
+		assert.strictEqual(errors.length, 1);
+		repositories.getRepository = () => model;
+		model.state.mergeChanges.push(model.state.workingTreeChanges[0]);
+		await createFixup({ repoPath: repo.path, sha: targetSha });
+		assert.strictEqual(warnings.length, 1);
+		assert.strictEqual(await runGit(repo.path, ['diff', '--cached']), '');
+	});
+
+	test('rolls back automatic staging when commit creation fails', async () => {
+		const original = repositories.runGitFixup;
+		try {
+			repositories.runGitFixup = async () => { throw new Error('Commit rejected'); };
+			await createFixup({ repoPath: repo.path, sha: targetSha });
+			assert.strictEqual(errors.length, 1);
+			assert.strictEqual(await runGit(repo.path, ['diff', '--cached']), '');
+			assert.match(await runGit(repo.path, ['diff']), /fixed/);
+		} finally {
+			repositories.runGitFixup = original;
+		}
+	});
+
 	test('rejects missing and malformed targets before staging', async () => {
 		for (const sha of ['0'.repeat(40), '--all', 'HEAD']) {
 			await createFixup({ repoPath: repo.path, sha });
