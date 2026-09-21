@@ -21,11 +21,49 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify tag targets a commit on main
+      - name: Resolve release metadata
+        id: release
         run: |
-          if ! git merge-base --is-ancestor HEAD origin/main; then
-            echo "::error::Tagged commit is not on the main branch. Publish aborted."
+          if [[ "$GITHUB_REF_NAME" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)-beta$ ]]; then
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$GITHUB_REF_NAME" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Tag '$GITHUB_REF_NAME' must match vX.Y.Z or vX.Y.Z-beta."
             exit 1
+          fi
+
+      - name: Verify tag source and version
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          IS_PRERELEASE: ${{ steps.release.outputs.prerelease }}
+        run: |
+          if [[ "$IS_PRERELEASE" == "true" ]]; then
+            if git merge-base --is-ancestor HEAD origin/main; then
+              echo "::error::Beta tag must not target a commit on the main branch. Publish aborted."
+              exit 1
+            fi
+            git fetch --no-tags origin '+refs/heads/release/*:refs/remotes/origin/release/*'
+            RELEASE_BRANCHES="$(git for-each-ref --contains HEAD --format='%(refname)' refs/remotes/origin/release/)"
+            if [[ -z "$RELEASE_BRANCHES" ]]; then
+              echo "::error::Beta tag must target a commit on a release/* branch. Publish aborted."
+              exit 1
+            fi
+            if git rev-parse --verify --quiet "refs/tags/v$VERSION" > /dev/null; then
+              echo "::error::Version $VERSION is already used by a stable release tag. Publish aborted."
+              exit 1
+            fi
+          else
+            if ! git merge-base --is-ancestor HEAD origin/main; then
+              echo "::error::Stable tag must target a commit on the main branch. Publish aborted."
+              exit 1
+            fi
+            if git rev-parse --verify --quiet "refs/tags/v$VERSION-beta" > /dev/null; then
+              echo "::error::Version $VERSION is already used by a beta release tag. Publish aborted."
+              exit 1
+            fi
           fi
 
       - name: Setup Node.js
@@ -39,12 +77,9 @@ jobs:
         run: npm ci
 
       - name: Sync version from git tag
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::Tag '$GITHUB_REF_NAME' is not a valid semver (vX.Y.Z). Aborting."
-            exit 1
-          fi
           npm version "$VERSION" --no-git-tag-version --allow-same-version
 
       - name: Lint
@@ -57,14 +92,29 @@ jobs:
         run: xvfb-run -a npm test
 
       - name: Package extension
-        run: npx vsce package
+        env:
+          IS_PRERELEASE: ${{ steps.release.outputs.prerelease }}
+        run: |
+          if [[ "$IS_PRERELEASE" == "true" ]]; then
+            npx vsce package --pre-release
+          else
+            npx vsce package
+          fi
 
       - name: Publish to VS Code Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: npx vsce publish
+          IS_PRERELEASE: ${{ steps.release.outputs.prerelease }}
+        run: |
+          if [[ "$IS_PRERELEASE" == "true" ]]; then
+            npx vsce publish --pre-release
+          else
+            npx vsce publish
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: vscode-git-fixup-panel/*.vsix
+          prerelease: ${{ steps.release.outputs.prerelease }}
+          make_latest: ${{ steps.release.outputs.prerelease == 'true' && 'false' || 'true' }}
