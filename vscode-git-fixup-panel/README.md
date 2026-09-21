@@ -13,6 +13,16 @@ Both commands are accessible from the Source Control panel title bar buttons and
 
 ## Features
 
+### GitLens Commit Graph integration (Beta)
+
+The Pre-Release version adds an experimental **Create Fixup Commit — Git Fixup Panel (Beta)** action to a separate group in the right-click menu of a single commit in GitLens Commit Graph (editor or sidebar). It uses that commit directly, including commits older than 20 entries, without opening the commit picker.
+
+The commit must belong to the current `HEAD` history in the graph's selected local repository, which must also be open in VS Code's built-in Git extension. Changes are committed in that repository, regardless of the active editor. Existing staged changes are used as-is; when nothing is staged, all working tree changes are staged automatically. The post-fixup rebase prompt follows the existing setting.
+
+GitLens is optional and is not installed automatically. The usual Source Control buttons and Command Palette commands still work without it. This integration is maintained on `release/beta`, separately from the stable version. Once published, use **Switch to Pre-Release Version** in the extension's VS Code page to try it.
+
+The adapter follows GitLens 19.2.0's internal graph context format, not a guaranteed public API. Multiple selections, uncommitted/stash rows, other-branch commits, secondary worktree HEAD rows, virtual repositories, and GitLens tree views are not supported. Git Graph and VS Code's built-in graph are not covered by this Beta. To work in another worktree, open it as the graph's repository.
+
 ### Create Fixup Commit
 
 Stage your changes, then pick which commit to fix up from a quick-pick list of your recent 20 commits. A `fixup!` commit is created instantly. After creation you can choose to run the autosquash rebase immediately or defer it.

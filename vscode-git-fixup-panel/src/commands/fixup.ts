@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import {
 	getRepository,
 	getCommitLog,
+	getFixupTarget,
+	CommitEntry,
 	getRootCommitSha,
 	runGitFixup,
 	runGitAddAll,
@@ -13,8 +15,17 @@ import { handleAutosquashError } from './handleAutosquashError';
 
 const REBASE_BUTTON = 'Rebase now';
 
+export interface FixupTarget {
+	repoPath: string;
+	sha: string;
+}
+
 export async function fixupCommand(): Promise<void> {
-	const repo = getRepository();
+	await createFixup();
+}
+
+export async function createFixup(target?: FixupTarget): Promise<void> {
+	const repo = getRepository(target?.repoPath);
 	if (!repo) {
 		vscode.window.showErrorMessage('No Git repository found.');
 		return;
@@ -40,23 +51,28 @@ export async function fixupCommand(): Promise<void> {
 	const autoStage = !hasIndex;
 
 	const repoPath = repo.rootUri.fsPath;
-	let commits;
+	let selected: CommitEntry | undefined;
 	try {
-		commits = await getCommitLog(repoPath);
+		if (target) {
+			selected = await getFixupTarget(target.sha, repoPath);
+		} else {
+			const commits = await getCommitLog(repoPath);
+			if (commits.length === 0) {
+				vscode.window.showErrorMessage('No commit history found.');
+				return;
+			}
+			selected = await vscode.window.showQuickPick(commits, {
+				placeHolder: 'Select a commit to fixup',
+				matchOnDescription: true,
+			});
+		}
 	} catch (err) {
-		vscode.window.showErrorMessage(`Failed to retrieve commit log: ${err instanceof Error ? err.message : String(err)}`);
+		const message = target
+			? 'Cannot fix up this commit. Select an existing commit in the current HEAD history.'
+			: 'Failed to retrieve commit log';
+		vscode.window.showErrorMessage(`${message}: ${err instanceof Error ? err.message : String(err)}`);
 		return;
 	}
-
-	if (commits.length === 0) {
-		vscode.window.showErrorMessage('No commit history found.');
-		return;
-	}
-
-	const selected = await vscode.window.showQuickPick(commits, {
-		placeHolder: 'Select a commit to fixup',
-		matchOnDescription: true,
-	});
 
 	if (!selected) {
 		return;
