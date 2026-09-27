@@ -7,6 +7,7 @@ import { GitExtension, Repository } from '../types/git';
 const execFileAsync = promisify(execFile);
 
 const COMMIT_LOG_COUNT = 20;
+const NOT_ANCESTOR_EXIT_CODE = 1;
 // SHA-1は40桁の16進数
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 
@@ -21,7 +22,14 @@ export interface CommitEntry extends vscode.QuickPickItem {
 	sha: string;
 }
 
-export function getRepository(): Repository | undefined {
+export class FixupTargetNotInHistoryError extends Error {
+	constructor() {
+		super('Cannot fix up this commit. Select a commit in the current HEAD history.');
+		this.name = 'FixupTargetNotInHistoryError';
+	}
+}
+
+export function getRepository(repoPath?: string): Repository | undefined {
 	const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')?.exports;
 	// enabled未チェックのままgetAPIを呼ぶと無効状態で予期しない値が返る
 	if (!gitExtension?.enabled) {
@@ -30,6 +38,10 @@ export function getRepository(): Repository | undefined {
 	const git = gitExtension.getAPI(1);
 	if (!git) {
 		return undefined;
+	}
+	// An explicit target must never fall back to the active editor or another repository.
+	if (repoPath !== undefined) {
+		return git.repositories.find(repo => path.relative(repo.rootUri.fsPath, repoPath) === '');
 	}
 	// マルチルートワークスペース対応: アクティブエディタのURIに一致するリポジトリを優先する
 	const activeUri = vscode.window.activeTextEditor?.document.uri;
@@ -61,6 +73,28 @@ export async function getCommitLog(repoPath: string): Promise<CommitEntry[]> {
 		}
 		return [{ sha, label: message, description: sha.slice(0, 7) }];
 	});
+}
+
+export async function getFixupTarget(sha: string, repoPath: string): Promise<CommitEntry> {
+	if (!SHA_PATTERN.test(sha)) {
+		throw new Error('Expected a full commit SHA.');
+	}
+	// Graphs also contain other branches; those targets cannot be autosquashed into HEAD.
+	try {
+		await execFileAsync(getGitExecutable(), ['merge-base', '--is-ancestor', sha, 'HEAD'], {
+			cwd: repoPath, env: GIT_ENV,
+		});
+	} catch (err) {
+		// Exit code 1 is a negative ancestry result, not a Git execution failure.
+		if (err instanceof Error && 'code' in err && err.code === NOT_ANCESTOR_EXIT_CODE) {
+			throw new FixupTargetNotInHistoryError();
+		}
+		throw err;
+	}
+	const { stdout } = await execFileAsync(getGitExecutable(), ['show', '-s', '--format=%s', sha], {
+		cwd: repoPath, env: GIT_ENV,
+	});
+	return { sha, label: stdout.trimEnd(), description: sha.slice(0, 7) };
 }
 
 export async function runGitFixup(sha: string, cwd: string): Promise<void> {

@@ -33,6 +33,11 @@
     },
     "commands": [
       {
+        "command": "vscode-git-fixup-panel.gitlensFixup",
+        "title": "Create Fixup Commit — Git Fixup Panel (Beta)",
+        "category": "Git Fixup"
+      },
+      {
         "command": "vscode-git-fixup-panel.fixup",
         "title": "Create Fixup Commit",
         "category": "Git Fixup",
@@ -46,6 +51,13 @@
       }
     ],
     "menus": {
+      "webview/context": [
+        {
+          "command": "vscode-git-fixup-panel.gitlensFixup",
+          "when": "(webview == gitlens.graph || webview == gitlens.views.graph) && webviewItem =~ /^gitlens:commit\\b(?=.*\\+current\\b)(?!.*\\+worktreeHEAD\\b)/ && !listMultiSelection && !gitlens:readonly && !gitlens:untrusted && !gitlens:hasVirtualFolders && isWorkspaceTrusted",
+          "group": "1_gitlens_actions_0_git_fixup_panel@1"
+        }
+      ],
       "scm/title": [
         {
           "command": "vscode-git-fixup-panel.fixup",
@@ -59,6 +71,10 @@
         }
       ],
       "commandPalette": [
+        {
+          "command": "vscode-git-fixup-panel.gitlensFixup",
+          "when": "false"
+        },
         {
           "command": "vscode-git-fixup-panel.fixup"
         },
