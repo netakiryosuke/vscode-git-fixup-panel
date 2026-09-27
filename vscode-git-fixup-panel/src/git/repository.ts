@@ -7,6 +7,7 @@ import { GitExtension, Repository } from '../types/git';
 const execFileAsync = promisify(execFile);
 
 const COMMIT_LOG_COUNT = 20;
+const NOT_ANCESTOR_EXIT_CODE = 1;
 // SHA-1は40桁の16進数
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 
@@ -19,6 +20,13 @@ export function getGitExecutable(): string {
 
 export interface CommitEntry extends vscode.QuickPickItem {
 	sha: string;
+}
+
+export class FixupTargetNotInHistoryError extends Error {
+	constructor() {
+		super('Cannot fix up this commit. Select a commit in the current HEAD history.');
+		this.name = 'FixupTargetNotInHistoryError';
+	}
 }
 
 export function getRepository(repoPath?: string): Repository | undefined {
@@ -72,9 +80,17 @@ export async function getFixupTarget(sha: string, repoPath: string): Promise<Com
 		throw new Error('Expected a full commit SHA.');
 	}
 	// Graphs also contain other branches; those targets cannot be autosquashed into HEAD.
-	await execFileAsync(getGitExecutable(), ['merge-base', '--is-ancestor', sha, 'HEAD'], {
-		cwd: repoPath, env: GIT_ENV,
-	});
+	try {
+		await execFileAsync(getGitExecutable(), ['merge-base', '--is-ancestor', sha, 'HEAD'], {
+			cwd: repoPath, env: GIT_ENV,
+		});
+	} catch (err) {
+		// Exit code 1 is a negative ancestry result, not a Git execution failure.
+		if (err instanceof Error && 'code' in err && err.code === NOT_ANCESTOR_EXIT_CODE) {
+			throw new FixupTargetNotInHistoryError();
+		}
+		throw err;
+	}
 	const { stdout } = await execFileAsync(getGitExecutable(), ['show', '-s', '--format=%s', sha], {
 		cwd: repoPath, env: GIT_ENV,
 	});

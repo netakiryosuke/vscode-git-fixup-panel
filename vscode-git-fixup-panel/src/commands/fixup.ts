@@ -3,6 +3,7 @@ import {
 	getRepository,
 	getCommitLog,
 	getFixupTarget,
+	FixupTargetNotInHistoryError,
 	CommitEntry,
 	getRootCommitSha,
 	runGitFixup,
@@ -67,8 +68,12 @@ export async function createFixup(target?: FixupTarget): Promise<void> {
 			});
 		}
 	} catch (err) {
+		if (err instanceof FixupTargetNotInHistoryError) {
+			vscode.window.showErrorMessage(err.message);
+			return;
+		}
 		const message = target
-			? 'Cannot fix up this commit. Select an existing commit in the current HEAD history.'
+			? 'Failed to retrieve fixup target'
 			: 'Failed to retrieve commit log';
 		vscode.window.showErrorMessage(`${message}: ${err instanceof Error ? err.message : String(err)}`);
 		return;

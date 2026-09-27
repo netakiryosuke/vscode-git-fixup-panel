@@ -130,6 +130,7 @@ suite('Explicit Fixup Target Test Suite', function () {
 			await createFixup({ repoPath: repo.path, sha });
 		}
 		assert.strictEqual(errors.length, 3);
+		assert.match(errors[0], /^Failed to retrieve fixup target: Command failed:/);
 		assert.strictEqual(await runGit(repo.path, ['diff', '--cached']), '');
 		assert.strictEqual((await runGit(repo.path, ['rev-parse', 'HEAD'])).trim(), targetSha);
 	});
@@ -140,7 +141,19 @@ suite('Explicit Fixup Target Test Suite', function () {
 		await runGit(repo.path, ['checkout', '--detach', targetSha]);
 		await writeFile(repo.path, 'file.txt', 'fixed\n');
 		await createFixup({ repoPath: repo.path, sha: otherSha });
+		assert.deepStrictEqual(errors, [
+			'Cannot fix up this commit. Select a commit in the current HEAD history.',
+		]);
+		assert.strictEqual(await runGit(repo.path, ['diff', '--cached']), '');
+	});
+
+	test('preserves execution error details when the repository directory is unavailable', async () => {
+		const missingPath = repo.path + '/missing';
+		repositories.getRepository = () => ({ ...model, rootUri: vscode.Uri.file(missingPath) });
+		await createFixup({ repoPath: missingPath, sha: targetSha });
 		assert.strictEqual(errors.length, 1);
+		assert.match(errors[0], /^Failed to retrieve fixup target:/);
+		assert.match(errors[0], /ENOENT/);
 		assert.strictEqual(await runGit(repo.path, ['diff', '--cached']), '');
 	});
 
